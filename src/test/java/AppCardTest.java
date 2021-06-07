@@ -1,122 +1,140 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.Keys;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selectors.withText;
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.Selenide.*;
 
-public class AppCardTest {
-    DataGenerator dataGenerator = new DataGenerator();
+class CardDeliveryTest {
 
+    private DataGenerator.User user;
 
     @BeforeEach
-    void openURL() {
+    void setUp() {
         open("http://localhost:9999");
+        user = DataGenerator.getUserInfo();
     }
 
-    @Test
-    void shouldSubmitRequest() {
-        $("[data-test-id=city] input").setValue(dataGenerator.makeCity());
-        $("[data-test-id=date] input").doubleClick().sendKeys(dataGenerator.forwardDate(3));
-        $("[data-test-id=name] input").setValue(dataGenerator.firstName + " " + dataGenerator.lastName);
-        $("[data-test-id=phone] input").setValue(dataGenerator.PhoneNumber);
-        $(".checkbox__box").click();
-        $(".button__text").click();
-        $(withText("Успешно")).shouldBe();
-
-        $("[data-test-id=date] input").doubleClick().sendKeys(dataGenerator.forwardDate(4));
-        $(".button__text").click();
-        $(withText("У вас уже запланирована встреча на другую дату. Перепланировать?")).shouldBe(visible);
-        $("[data-test-id=replan-notification] button.button").click();
-        $(withText("Успешно")).shouldBe(visible);
-
-    }
 
     @Test
-    void shouldSendFormWithValidData() {
-        $("[data-test-id=city] input").setValue(dataGenerator.makeCity());
-        $("[data-test-id=date] input").sendKeys(dataGenerator.forwardDate(3));
-        $("[data-test-id=name] input").setValue(dataGenerator.firstName + " " + dataGenerator.lastName);
-        $("[data-test-id=phone] input").setValue(dataGenerator.PhoneNumber);
-        $(".checkbox__box").click();
-        $(".button__text").click();
-        $(withText("Успешно!")).waitUntil(visible, 15000);
-    }
-
-    @Test
-    void shouldGetErrorMessageIfYouSendIncorrectName() {
-        $("[data-test-id=city] input").setValue(dataGenerator.makeCity());
-        $("[data-test-id=date] input").sendKeys(dataGenerator.forwardDate(3));
-        $("[data-test-id=name] input").setValue("Vasin234");
-        $("[data-test-id=phone] input").setValue(dataGenerator.PhoneNumber);
-        $(".checkbox__box").click();
-        $(".button__text").click();
-        $("[data-test-id=\"name\"] .input__sub").shouldHave(exactText("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы."));
-    }
-
-    @Test
-    void shouldGetErrorMessageIfYouSendIncorrectPhoneNumber() {
-        $("[data-test-id=city] input").setValue(dataGenerator.makeCity());
-        $("[data-test-id=date] input").sendKeys(dataGenerator.forwardDate(3));
-        $("[data-test-id=name] input").setValue(dataGenerator.firstName + " " + dataGenerator.lastName);
-        $("[data-test-id=phone] input").setValue("37");
+    void shouldTestDeliveryCardFirst() {
+        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        $("[data-test-id=city] input").setValue(DataGenerator.getCity());
+        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
+        $("[data-test-id=date] input").setValue(date);
+        $("[data-test-id=name] input").setValue(user.getName());
+        $("[data-test-id=phone] input").setValue(user.getPhone());
         $("[data-test-id=agreement]").click();
         $(".button").click();
-        $("[data-test-id=\"phone\"] .input__sub").shouldHave(exactText("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."));
+        $(byText("Успешно!")).shouldBe(visible);
     }
 
     @Test
-    void shouldGetErrorMessageIfYouSendIncorrectCity() {
-        $("[data-test-id=city] input").setValue("Kostroma");
-        $("[data-test-id=date] input").sendKeys(dataGenerator.forwardDate(3));
-        $("[data-test-id=name] input").setValue(dataGenerator.firstName + " " + dataGenerator.lastName);
-        $("[data-test-id=phone] input").setValue(dataGenerator.PhoneNumber);
+    void shouldTestDeliveryCardSameDate() {
+        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        $("[data-test-id=city] input").setValue(DataGenerator.getCity());
+        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
+        $("[data-test-id=date] input").setValue(date);
+        $("[data-test-id=name] input").setValue(user.getName());
+        $("[data-test-id=phone] input").setValue(user.getPhone());
         $("[data-test-id=agreement]").click();
         $(".button").click();
-        $("[data-test-id=\"city\"] .input__sub").shouldHave(exactText("Доставка в выбранный город недоступна"));
+        $(byText("Успешно!")).shouldBe(visible);
+        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
+        String date1 = LocalDate.now().plusDays(4).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        $("[data-test-id=date] input").setValue(date1);
+        $$("button").find(exactText("Запланировать")).click();
+        $(byText("Необходимо подтверждение")).shouldBe(visible);
+        $$("button").find(exactText("Перепланировать")).click();
+        $(byText("Успешно!")).shouldBe(visible);
     }
 
     @Test
-    void shouldGetErrorMessageIfYouSendIncorrectData() {
-        $("[data-test-id=city] input").setValue(dataGenerator.makeCity());
-        $("[data-test-id=date] input").doubleClick().sendKeys("12122000");
-        $("[data-test-id=name] input").setValue(dataGenerator.firstName + " " + dataGenerator.lastName);
-        $("[data-test-id=phone] input").setValue(dataGenerator.PhoneNumber);
+    void shouldTestDeliveryCardWithoutDataAndAgreement() {
+        $("[data-test-id=city] input").setValue("");
+        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
+        $("[data-test-id=date] input").setValue("");
+        $("[data-test-id=name] input").setValue("");
+        $("[data-test-id=phone] input").setValue("");
+    }
+
+    @Test
+    void shouldTestDeliveryCardWithoutName() {
+        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        $("[data-test-id=city] input").setValue(DataGenerator.getCity());
+        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
+        $("[data-test-id=date] input").setValue(date);
+        $("[data-test-id=name] input").setValue("");
+        $("[data-test-id=phone] input").setValue(user.getPhone());
         $("[data-test-id=agreement]").click();
         $(".button").click();
-        $("[data-test-id=\"date\"] .input__sub").shouldHave(exactText("Заказ на выбранную дату невозможен"));
+
     }
 
     @Test
-    void shouldSendFormWithoutName() {
-        $("[data-test-id=city] input").setValue(dataGenerator.makeCity());
-        $("[data-test-id=date] input").sendKeys(dataGenerator.forwardDate(3));
-        $("[data-test-id=phone] input").setValue(dataGenerator.PhoneNumber);
+    void shouldTestDeliveryCardWithoutPhone() {
+        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        $("[data-test-id=city] input").setValue(DataGenerator.getCity());
+        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
+        $("[data-test-id=date] input").setValue(date);
+        $("[data-test-id=name] input").setValue(user.getName());
+        $("[data-test-id=phone] input").setValue("");
         $("[data-test-id=agreement]").click();
         $(".button").click();
-        $("[data-test-id=\"name\"] .input__sub").shouldHave(exactText("Поле обязательно для заполнения"));
     }
 
     @Test
-    void shouldSendFormWithoutNumber() {
-        $("[data-test-id=city] input").setValue(dataGenerator.makeCity());
-        $("[data-test-id=date] input").sendKeys(dataGenerator.forwardDate(3));
-        $("[data-test-id=name] input").setValue(dataGenerator.firstName + " " + dataGenerator.lastName);
+    void shouldTestDeliveryCardWithoutDate() {
+        $("[data-test-id=city] input").setValue(DataGenerator.getCity());
+        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
+        $("[data-test-id=date] input").setValue("");
+        $("[data-test-id=name] input").setValue(user.getName());
+        $("[data-test-id=phone] input").setValue(user.getPhone());
         $("[data-test-id=agreement]").click();
         $(".button").click();
-        $("[data-test-id=\"phone\"] .input__sub").shouldHave(exactText("Поле обязательно для заполнения"));
     }
 
     @Test
-    void shouldSendFormWithoutCheckbox() {
-        $("[data-test-id=city] input").setValue(dataGenerator.makeCity());
-        $("[data-test-id=date] input").sendKeys(dataGenerator.forwardDate(3));
-        $("[data-test-id=name] input").setValue(dataGenerator.firstName + " " + dataGenerator.lastName);
-        $("[data-test-id=phone] input").setValue(dataGenerator.PhoneNumber);
+    void shouldTestDeliveryCardIncorrectCity() {
+        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        $("[data-test-id=city] input").setValue("Минск");
+        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
+        $("[data-test-id=date] input").setValue(date);
+        $("[data-test-id=name] input").setValue(user.getName());
+        $("[data-test-id=phone] input").setValue(user.getPhone());
+        $("[data-test-id=agreement]").click();
         $(".button").click();
-        $(".input_invalid").shouldHave(exactText("Я соглашаюсь с условиями обработки и использования моих персональных данных"));
     }
+
+    @Test
+    void shouldTestDeliveryCardDateInPast() {
+        String date = LocalDate.now().minusDays(2).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        $("[data-test-id=city] input").setValue(DataGenerator.getCity());
+        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
+        $("[data-test-id=date] input").setValue(date);
+        $("[data-test-id=name] input").setValue(user.getName());
+        $("[data-test-id=phone] input").setValue(user.getPhone());
+        $("[data-test-id=agreement]").click();
+        $(".button").click();
+        $("[data-test-id=date] .input_invalid").shouldHave(exactText("Заказ на выбранную дату невозможен"));
+    }
+
+
+    @Test
+    void shouldTestDeliveryCardWithoutAgreement() {
+        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        $("[data-test-id=city] input").setValue(DataGenerator.getCity());
+        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
+        $("[data-test-id=date] input").setValue(date);
+        $("[data-test-id=name] input").setValue(user.getName());
+        $("[data-test-id=phone] input").setValue(user.getPhone());
+    }
+
+
 }
-
