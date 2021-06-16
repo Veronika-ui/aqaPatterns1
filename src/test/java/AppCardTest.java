@@ -11,7 +11,7 @@ import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.*;
 
-class CardDeliveryTest {
+class AppCardTest {
 
     private DataGenerator.User user;
 
@@ -62,6 +62,12 @@ class CardDeliveryTest {
         $("[data-test-id=date] input").setValue("");
         $("[data-test-id=name] input").setValue("");
         $("[data-test-id=phone] input").setValue("");
+        $("[data-test-id=agreement]").click();
+        $(".button").click();
+        $("[data-test-id='city'] .input__sub").shouldHave(exactText("Поле обязательно для заполнения"));
+
+
+
     }
 
     @Test
@@ -70,10 +76,11 @@ class CardDeliveryTest {
         $("[data-test-id=city] input").setValue(DataGenerator.getCity());
         $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
         $("[data-test-id=date] input").setValue(date);
-        $("[data-test-id=name] input").setValue("");
+        $("[data-test-id=name] input").setValue("Yaka34");
         $("[data-test-id=phone] input").setValue(user.getPhone());
         $("[data-test-id=agreement]").click();
         $(".button").click();
+        $("[data-test-id='name'] .input__sub").shouldHave(exactText("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы."));
 
     }
 
@@ -84,32 +91,34 @@ class CardDeliveryTest {
         $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
         $("[data-test-id=date] input").setValue(date);
         $("[data-test-id=name] input").setValue(user.getName());
-        $("[data-test-id=phone] input").setValue("");
-        $("[data-test-id=agreement]").click();
+        $("[data-test-id=phone] input").setValue("+79967544342");
         $(".button").click();
+        $("[data-test-id='phone'] .input__sub").shouldHave(exactText("На указанный номер моб. тел. будет отправлен смс-код для подтверждения заявки на карту. Проверьте, что номер ваш и введен корректно."));
     }
 
     @Test
     void shouldTestDeliveryCardWithoutDate() {
         $("[data-test-id=city] input").setValue(DataGenerator.getCity());
         $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
-        $("[data-test-id=date] input").setValue("");
+        $("[data-test-id=date] input").setValue("1223565");
         $("[data-test-id=name] input").setValue(user.getName());
         $("[data-test-id=phone] input").setValue(user.getPhone());
         $("[data-test-id=agreement]").click();
         $(".button").click();
+        $("[data-test-id='date'] .input__sub").shouldHave(exactText("Неверно введена дата"));
     }
 
     @Test
     void shouldTestDeliveryCardIncorrectCity() {
         String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-        $("[data-test-id=city] input").setValue("Минск");
+        $("[data-test-id=city] input").setValue("Samara");
         $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
         $("[data-test-id=date] input").setValue(date);
         $("[data-test-id=name] input").setValue(user.getName());
         $("[data-test-id=phone] input").setValue(user.getPhone());
         $("[data-test-id=agreement]").click();
         $(".button").click();
+        $("[data-test-id='city'] .input__sub").shouldHave(exactText("Доставка в выбранный город недоступна"));
     }
 
     @Test
