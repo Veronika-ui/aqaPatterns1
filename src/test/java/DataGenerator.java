@@ -39,18 +39,18 @@ public class DataGenerator {
     }
 
     public static String getDateMeeting() {
-        final String FORMAT_DATE = "dd.MM.yyyy";
+        final String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern(".MM.yyyy"));
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(FORMAT_DATE);
         LocalDate date = LocalDate.now().plusDays(3);
         return dateFormatter.format(date);
     }
-
-    public static String getNextDateMeeting() {
-        final String FORMAT_DATE = "dd.MM.yyyy";
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(FORMAT_DATE);
-        LocalDate date = LocalDate.now().plusDays(15);
-        return dateFormatter.format(date);
-    }
+//
+//    public static String getNextDateMeeting() {
+//        final String FORMAT_DATE = "dd.MM.yyyy";
+//        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(FORMAT_DATE);
+//        LocalDate date = LocalDate.now().plusDays(15);
+//        return dateFormatter.format(date);
+//    }
 
     public static String getCity() {
         String[] cities = {"Майкоп", "Горно-Алтайск", "Уфа", "Улан-Удэ", "Махачкала", "Магас", "Нальчик", "Элиста",
