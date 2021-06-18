@@ -37,13 +37,10 @@ public class DataGenerator {
                 faker.phoneNumber().phoneNumber()
         );
     }
-
-    public static String getDateMeeting() {
-        final String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern(".MM.yyyy"));
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(FORMAT_DATE);
-        LocalDate date = LocalDate.now().plusDays(3);
-        return dateFormatter.format(date);
+    public static String  getDateMeeting(int shift) {
+        return LocalDate.now().plusDays(shift).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
+
 //
 //    public static String getNextDateMeeting() {
 //        final String FORMAT_DATE = "dd.MM.yyyy";
