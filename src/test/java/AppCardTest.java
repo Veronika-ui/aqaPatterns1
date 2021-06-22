@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.byText;
+import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.*;
 
 class AppCardTest {
@@ -21,11 +22,52 @@ class AppCardTest {
     }
 
 
+
+
+
     @Test
     void shouldTestDeliveryCardFirst() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-        $("[data-test-id=city] input").setValue(DataGenerator.getCity());
-        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.DELETE));
+        String date = DataGenerator.getDateMeeting(4);
+        $("[data-test-id=city] input").setValue(user.getCity());
+        $("[data-test-id=date] input")
+                .sendKeys(Keys.chord(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE));
+        $("[data-test-id=date] input").setValue(date);
+        $("[data-test-id=name] input").setValue(user.getName());
+        $("[data-test-id=phone] input").setValue(user.getPhone());
+        $("[data-test-id=agreement]").click();
+        $(".button").click();
+        $(byText("Успешно!")).shouldBe(visible);
+        $("[data-test-id=success-notification] .notification__content")
+                .shouldHave(exactText("Встреча успешно запланирована на " + date));
+    }
+
+    @Test
+    void shouldrescheduleToAnotherDate() {
+        String date = DataGenerator.getDateMeeting(4);
+        $("[data-test-id=city] input").setValue(user.getCity());
+        $("[data-test-id=date] input")
+                .sendKeys(Keys.chord(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE));
+        $("[data-test-id=date] input").setValue(date);
+        $("[data-test-id=name] input").setValue(user.getName());
+        $("[data-test-id=phone] input").setValue(user.getPhone());
+        $("[data-test-id=agreement]").click();
+        $(".button").click();
+        $(byText("Успешно!")).shouldBe(visible);
+
+        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $(".button__text").click();
+        $(withText("У вас уже запланирована встреча на другую дату. Перепланировать?")).shouldBe(visible);
+        $("[data-test-id=replan-notification] button.button").click();
+        $(byText("Успешно!")).shouldBe(visible);
+    }
+
+
+    @Test
+    void shouldTestDeliveryCard() {
+        String date = DataGenerator.getDateMeeting(4);
+        $("[data-test-id=city] input").setValue(user.getCity());
+        $("[data-test-id=date] input")
+                .sendKeys(Keys.chord(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE));
         $("[data-test-id=date] input").setValue(date);
         $("[data-test-id=name] input").setValue(user.getName());
         $("[data-test-id=phone] input").setValue(user.getPhone());
@@ -34,11 +76,14 @@ class AppCardTest {
         $(byText("Успешно!")).shouldBe(visible);
     }
 
+
+
     @Test
-    void shouldTestDeliveryCardSameDate() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-        $("[data-test-id=city] input").setValue(DataGenerator.getCity());
-        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.DELETE));
+    void shouldTestDeliveryCardReschedule() {
+        String date = DataGenerator.getDateMeeting(4);
+        $("[data-test-id=city] input").setValue(user.getCity());
+        $("[data-test-id=date] input")
+                .sendKeys(Keys.chord(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE));
         $("[data-test-id=date] input").setValue(date);
         $("[data-test-id=name] input").setValue(user.getName());
         $("[data-test-id=phone] input").setValue(user.getPhone());
@@ -56,8 +101,10 @@ class AppCardTest {
 
     @Test
     void shouldTestDeliveryCardWithoutDataAndAgreement() {
-        $("[data-test-id=city] input").setValue("");
-        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.DELETE));
+        String date = DataGenerator.getDateMeeting(4);
+        $("[data-test-id=city] input").setValue(user.getCity());
+        $("[data-test-id=date] input")
+                .sendKeys(Keys.chord(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE));
         $("[data-test-id=date] input").setValue("");
         $("[data-test-id=name] input").setValue("");
         $("[data-test-id=phone] input").setValue("");
@@ -70,9 +117,10 @@ class AppCardTest {
 
     @Test
     void shouldTestDeliveryCardWithoutName() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-        $("[data-test-id=city] input").setValue(DataGenerator.getCity());
-        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.DELETE));
+        String date = DataGenerator.getDateMeeting(4);
+        $("[data-test-id=city] input").setValue(user.getCity());
+        $("[data-test-id=date] input")
+                .sendKeys(Keys.chord(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE));
         $("[data-test-id=date] input").setValue(date);
         $("[data-test-id=name] input").setValue("Yaka34");
         $("[data-test-id=phone] input").setValue(user.getPhone());
@@ -84,9 +132,10 @@ class AppCardTest {
 
     @Test
     void shouldTestDeliveryCardWithoutPhone() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-        $("[data-test-id=city] input").setValue(DataGenerator.getCity());
-        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.DELETE));
+        String date = DataGenerator.getDateMeeting(4);
+        $("[data-test-id=city] input").setValue(user.getCity());
+        $("[data-test-id=date] input")
+                .sendKeys(Keys.chord(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE));
         $("[data-test-id=date] input").setValue(date);
         $("[data-test-id=name] input").setValue(user.getName());
         $("[data-test-id=phone] input").setValue("+79967544342");
@@ -96,8 +145,10 @@ class AppCardTest {
 
     @Test
     void shouldTestDeliveryCardWithoutDate() {
-        $("[data-test-id=city] input").setValue(DataGenerator.getCity());
-        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.DELETE));
+        String date = DataGenerator.getDateMeeting(4);
+        $("[data-test-id=city] input").setValue(user.getCity());
+        $("[data-test-id=date] input")
+                .sendKeys(Keys.chord(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE));
         $("[data-test-id=date] input").setValue("1223565");
         $("[data-test-id=name] input").setValue(user.getName());
         $("[data-test-id=phone] input").setValue(user.getPhone());
@@ -108,9 +159,10 @@ class AppCardTest {
 
     @Test
     void shouldTestDeliveryCardIncorrectCity() {
-        String date = LocalDate.now().plusDays(3).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-        $("[data-test-id=city] input").setValue("Samara");
-        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.DELETE));
+        String date = DataGenerator.getDateMeeting(4);
+        $("[data-test-id=city] input").setValue(user.getCity());
+        $("[data-test-id=date] input")
+                .sendKeys(Keys.chord(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE));
         $("[data-test-id=date] input").setValue(date);
         $("[data-test-id=name] input").setValue(user.getName());
         $("[data-test-id=phone] input").setValue(user.getPhone());
@@ -121,15 +173,16 @@ class AppCardTest {
 
     @Test
     void shouldTestDeliveryCardDateInPast() {
-        String date = LocalDate.now().minusDays(2).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-        $("[data-test-id=city] input").setValue(DataGenerator.getCity());
-        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.DELETE));
+        String date = DataGenerator.getDateMeeting(4);
+        $("[data-test-id=city] input").setValue(user.getCity());
+        $("[data-test-id=date] input")
+                .sendKeys(Keys.chord(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE));
         $("[data-test-id=date] input").setValue(date);
         $("[data-test-id=name] input").setValue(user.getName());
         $("[data-test-id=phone] input").setValue(user.getPhone());
         $("[data-test-id=agreement]").click();
         $(".button").click();
-        $("[data-test-id=date] .input_invalid").shouldHave(exactText("Заказ на выбранную дату невозможен"));
+        $("[data-test-id='date'] .input_sub").shouldHave(exactText("Заказ на выбранную дату невозможен"));
     }
 
 
