@@ -22,9 +22,6 @@ class AppCardTest {
     }
 
 
-
-
-
     @Test
     void shouldTestDeliveryCardFirst() {
         String date = DataGenerator.getDateMeeting(4);
@@ -42,7 +39,7 @@ class AppCardTest {
     }
 
     @Test
-    void shouldrescheduleToAnotherDate() {
+    void shouldRescheduleToAnotherDate() {
         String date = DataGenerator.getDateMeeting(4);
         $("[data-test-id=city] input").setValue(user.getCity());
         $("[data-test-id=date] input")
@@ -53,7 +50,6 @@ class AppCardTest {
         $("[data-test-id=agreement]").click();
         $(".button").click();
         $(byText("Успешно!")).shouldBe(visible);
-
         $("[data-test-id=date] input").doubleClick().sendKeys(date);
         $(".button__text").click();
         $(withText("У вас уже запланирована встреча на другую дату. Перепланировать?")).shouldBe(visible);
@@ -77,13 +73,12 @@ class AppCardTest {
     }
 
 
-
     @Test
     void shouldTestDeliveryCardСheckingPopupWindow() {
         String date = DataGenerator.getDateMeeting(4);
         $("[data-test-id=city] input").setValue(user.getCity());
         $("[data-test-id=date] input");
-        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
+        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.DELETE));
         $("[data-test-id=date] input").setValue(date);
         $("[data-test-id=name] input").setValue(user.getName());
         $("[data-test-id=phone] input").setValue(user.getPhone());
@@ -102,7 +97,7 @@ class AppCardTest {
     @Test
     void shouldTestDeliveryCardWithoutDataAndAgreement() {
         $("[data-test-id=city] input").setValue("");
-        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL,"a", Keys.DELETE));
+        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.DELETE));
         $("[data-test-id=date] input").setValue("");
         $("[data-test-id=name] input").setValue("");
         $("[data-test-id=phone] input").setValue("");
