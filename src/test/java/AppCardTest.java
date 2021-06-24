@@ -40,23 +40,29 @@ class AppCardTest {
 
     @Test
     void shouldRescheduleToAnotherDate() {
-        String date = DataGenerator.getDateMeeting(4);
+        String firstDate = DataGenerator.getDateMeeting(4);
         $("[data-test-id=city] input").setValue(user.getCity());
         $("[data-test-id=date] input")
                 .sendKeys(Keys.chord(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE));
-        $("[data-test-id=date] input").setValue(date);
+        $("[data-test-id=date] input").setValue(firstDate);
         $("[data-test-id=name] input").setValue(user.getName());
         $("[data-test-id=phone] input").setValue(user.getPhone());
         $("[data-test-id=agreement]").click();
         $(".button").click();
         $(byText("Успешно!")).shouldBe(visible);
-        $("[data-test-id=date] input").doubleClick().sendKeys(date);
+        $("[data-test-id=success-notification] .notification__content")
+                .shouldHave(exactText("Встреча успешно запланирована на " + firstDate));
+        String secondDate = DataGenerator.getDateMeeting(4);
+        $("[data-test-id=date] input")
+                .sendKeys(Keys.chord(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE));
+        $("[data-test-id=date] input").setValue(secondDate);
         $(".button__text").click();
         $(withText("У вас уже запланирована встреча на другую дату. Перепланировать?")).shouldBe(visible);
         $("[data-test-id=replan-notification] button.button").click();
         $(byText("Успешно!")).shouldBe(visible);
+        $("[data-test-id=success-notification] .notification__content")
+                .shouldHave(exactText("Встреча успешно запланирована на " + secondDate));
     }
-
 
     @Test
     void shouldTestDeliveryCard() {
@@ -97,15 +103,14 @@ class AppCardTest {
     @Test
     void shouldTestDeliveryCardWithoutDataAndAgreement() {
         $("[data-test-id=city] input").setValue("");
-        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.DELETE));
+        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE);
         $("[data-test-id=date] input").setValue("");
+        $("[data-test-id=name] input").sendKeys(Keys.ESCAPE);
         $("[data-test-id=name] input").setValue("");
         $("[data-test-id=phone] input").setValue("");
         $("[data-test-id=agreement]").click();
         $(".button").click();
         $("[data-test-id='city'] .input__sub").shouldHave(exactText("Поле обязательно для заполнения"));
-
-
     }
 
     @Test
